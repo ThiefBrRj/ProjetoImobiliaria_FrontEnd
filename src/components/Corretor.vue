@@ -2,115 +2,220 @@
   <v-container>
     <v-row class="text-center">
       <v-col cols="12">
-        <v-img :src="require('../assets/logo.svg')" class="my-3" contain height="200" />
-      </v-col>
+        <template>
+          <v-data-table :headers="headers" :items="corretores" :items-per-page="10" class="elevation-1">
+            <template v-slot:top>
+              <v-toolbar flat>
+                <v-toolbar-title>Corretores</v-toolbar-title>
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <input v-model.number="iptId" placeholder="Pesquise pelo ID" @keyup.enter="getById" />
+                <v-spacer></v-spacer>
+                <v-dialog v-model="dialog" max-width="700px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+                      Novo Item
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">{{ formTitle }}</span>
+                    </v-card-title>
 
-      <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.id" label="Id"></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="8">
+                            <v-text-field v-model="editedItem.nome" label="Nome">
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.cpf" label="CPF">
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.telefone" label="Telefone">
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.email" label="Email">
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.dataAdmissao" label="Data de Admissão">
+                            </v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="4">
+                            <v-text-field v-model="editedItem.gerenteId" label="Id do Gerente">
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
 
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a href="https://community.vuetifyjs.com" target="_blank">Discord Community</a>
-        </p>
-      </v-col>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="red darken-1" text @click="close"> Cancel </v-btn>
+                      <v-btn color="red darken-1" text @click="save"> Save </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+              <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+            </template>
+            <template v-slot:no-data>
+              <v-btn color="primary" @click="inicializa"> Reset </v-btn>
+            </template>
 
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          What's next?
-        </h2>
-
-        <v-row justify="center">
-          <a v-for="(next, i) in whatsNext" :key="i" :href="next.href" class="subheading mx-3" target="_blank">
-            {{ next.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a v-for="(link, i) in importantLinks" :key="i" :href="link.href" class="subheading mx-3" target="_blank">
-            {{ link.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a v-for="(eco, i) in ecosystem" :key="i" :href="eco.href" class="subheading mx-3" target="_blank">
-            {{ eco.text }}
-          </a>
-        </v-row>
+          </v-data-table>
+        </template>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: 'Corretor',
 
   data: () => ({
-    ecosystem: [
-      {
-        text: 'vuetify-loader',
-        href: 'https://github.com/vuetifyjs/vuetify-loader',
-      },
-      {
-        text: 'github',
-        href: 'https://github.com/vuetifyjs/vuetify',
-      },
-      {
-        text: 'awesome-vuetify',
-        href: 'https://github.com/vuetifyjs/awesome-vuetify',
-      },
+    dialog: false,
+    iptId: '',
+    headers: [
+      { text: 'ID', value: 'id' },
+      { text: 'Nome', value: 'nome' },
+      { text: 'CPF', value: 'cpf' },
+      { text: 'Telefone', value: 'telefone' },
+      { text: 'Email', value: 'email' },
+      { text: 'Data de Admissão', value: 'dataAdmissao' },
+      { text: 'Id do Gerente', value: 'gerenteId' },
+      { text: 'Ações', value: 'actions' },
     ],
-    importantLinks: [
-      {
-        text: 'Documentation',
-        href: 'https://vuetifyjs.com',
-      },
-      {
-        text: 'Chat',
-        href: 'https://community.vuetifyjs.com',
-      },
-      {
-        text: 'Made with Vuetify',
-        href: 'https://madewithvuejs.com/vuetify',
-      },
-      {
-        text: 'Twitter',
-        href: 'https://twitter.com/vuetifyjs',
-      },
-      {
-        text: 'Articles',
-        href: 'https://medium.com/vuetify',
-      },
-    ],
-    whatsNext: [
-      {
-        text: 'Explore components',
-        href: 'https://vuetifyjs.com/components/api-explorer',
-      },
-      {
-        text: 'Select a layout',
-        href: 'https://vuetifyjs.com/getting-started/pre-made-layouts',
-      },
-      {
-        text: 'Frequently Asked Questions',
-        href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
-      },
-    ],
+    corretores: [],
+    editedIndex: -1,
+    editedItem: {
+      id: 0,
+      nome: "",
+      cpf: "",
+      telefone: "",
+      email: "",
+      dataAdmissao: "",
+      gerenteId: "",
+    },
+    defaultItem: {
+      id: 0,
+      nome: "",
+      cpf: "",
+      telefone: "",
+      email: "",
+      dataAdmissao: "",
+      gerenteId: "",
+    },
+
   }),
+  methods: {
+    inicializa() {
+      axios("http://localhost:3000/corretores")
+        .then((response) => {
+          this.corretores = response.data
+        })
+        .catch((error) => console.log(error));
+    },
+    close() {
+      this.dialog = false;
+      setTimeout(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      }, 300);
+    },
+    getById() {
+      if (this.iptId != 0) {
+        axios
+          .get(
+            "http://localhost:3000/corretores/" + this.iptId
+          )
+          .then((response) => {
+            console.log(response);
+            this.corretores = [response.data];
+          })
+          .catch((error) => console.log(error));
+      } else {
+        this.getAll();
+      }
+    },
+    getAll() {
+      axios
+        .get(
+          "http://localhost:3000/corretores"
+        )
+        .then((response) => {
+          console.log(response);
+          this.corretores = response.data;
+        })
+        .catch((error) => console.log(error));
+    },
+    save() {
+      if (this.editedIndex > -1) {
+        axios
+          .put(
+            "http://localhost:3000/corretores/" + this.editedItem.id,
+            this.editedItem
+          )
+          .then((response) => {
+            console.log(response);
+            Object.assign(this.corretores[this.editedIndex], this.editedItem);
+            this.close();
+          })
+          .catch((error) => console.log(error));
+      } else {
+        axios
+          .post("http://localhost:3000/corretores", this.editedItem)
+          .then((response) => {
+            console.log(response);
+            this.corretores.push(this.editedItem);
+            this.close();
+          })
+          .catch((error) => console.log(error));
+      }
+    },
+    editItem(item) {
+      this.editedIndex = this.corretores.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+    },
+    deleteItem(item) {
+      const index = this.corretores.indexOf(item);
+      confirm("Deseja apagar este item?") &&
+        axios
+          .delete("http://localhost:3000/corretores/" + item.id)
+          .then((response) => {
+            console.log(response.data);
+            this.corretores.splice(index, 1);
+          })
+          .catch((error) => console.log(error));
+    },
+  },
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? "Novo Item" : "Editar Item";
+    },
+  },
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
+  created() {
+    this.inicializa();
+  }
 }
 </script>

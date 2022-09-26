@@ -12,42 +12,42 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView
+  path: '/',
+  name: 'home',
+  component: HomeView
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  path: '/about',
+  name: 'about',
+  // route level code-splitting
+  // this generates a separate chunk (about.[hash].js) for this route
+  // which is lazy-loaded when the route is visited.
+  component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
   {
-    path: '/cliente',
-    name: 'Clientes',
-    component: Cliente
+  path: '/cliente',
+  name: 'Clientes',
+  component: Cliente
   },
   {
-    path: '/corretor',
-    name: 'Corretores',
-    component: Corretor
+  path: '/corretor',
+  name: 'Corretores',
+  component: Corretor
   },
   {
-    path: '/imovel',
-    name: 'Im�veis',
-    component: Imovel
+  path: '/imovel',
+  name: 'Im�veis',
+  component: Imovel
   },
   {
-    path: '/aluguel',
-    name: 'Aluguel',
-    component: Aluguel
+  path: '/aluguel',
+  name: 'Aluguel',
+  component: Aluguel
   },
   {
-    path: '/venda',
-    name: 'Venda',
-    component: Venda
+  path: '/venda',
+  name: 'Venda',
+  component: Venda
   }
 ]
 
